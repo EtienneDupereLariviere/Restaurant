@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
 
 namespace Restaurant.Models
 {
@@ -6,11 +6,11 @@ namespace Restaurant.Models
     {
         public int Id { get; set; }
 
-        [Required]
         public string Name { get; set; }
 
-        [Required]
         public string Address { get; set; }
+
+        public List<Survey> Poll { get; set; }
 
         public string City { get; set; }
 

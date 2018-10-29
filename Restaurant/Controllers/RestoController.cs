@@ -2,6 +2,7 @@
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -13,13 +14,13 @@ namespace Restaurant.Controllers
     {
         private SqlBdContext db = new SqlBdContext();
 
-        // GET: api/Resto
+        // GET: /resto
         public IQueryable<Resto> GetRestaurants()
         {
             return db.Restaurants;
         }
 
-        // GET: api/Resto/5
+        // GET: /resto/{id}
         [ResponseType(typeof(Resto))]
         public async Task<IHttpActionResult> GetRestaurant(int id)
         {
@@ -32,7 +33,7 @@ namespace Restaurant.Controllers
             return Ok(restaurant);
         }
 
-        // PUT: api/Resto/5
+        // PUT: /resto/{id}
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> PutRestaurant(int id, Resto restaurant)
         {
@@ -67,7 +68,7 @@ namespace Restaurant.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // POST: api/Resto
+        // POST: /resto
         [ResponseType(typeof(Resto))]
         public async Task<IHttpActionResult> PostRestaurant(Resto restaurant)
         {
@@ -76,13 +77,20 @@ namespace Restaurant.Controllers
                 return BadRequest(ModelState);
             }
 
+            Resto restoExiste = db.Restaurants.SingleOrDefault(x => x.Name == restaurant.Name && x.Address == restaurant.Address);
+
+            if (restoExiste != null)
+            {
+                return ResponseMessage(new HttpResponseMessage(HttpStatusCode.Forbidden));
+            }
+
             db.Restaurants.Add(restaurant);
             await db.SaveChangesAsync();
 
             return CreatedAtRoute("DefaultApi", new { id = restaurant.Id }, restaurant);
         }
 
-        // DELETE: api/Resto/5
+        // DELETE: /resto/{id}
         [ResponseType(typeof(Resto))]
         public async Task<IHttpActionResult> DeleteRestaurant(int id)
         {
@@ -95,7 +103,7 @@ namespace Restaurant.Controllers
             db.Restaurants.Remove(restaurant);
             await db.SaveChangesAsync();
 
-            return Ok(restaurant);
+            return ResponseMessage(new HttpResponseMessage(HttpStatusCode.NoContent));
         }
 
         protected override void Dispose(bool disposing)
